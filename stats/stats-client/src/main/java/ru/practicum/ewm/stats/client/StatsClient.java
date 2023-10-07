@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.stats.dto.EndpointHitDto;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -28,11 +31,15 @@ public class StatsClient extends BaseClient {
         return post("/hit", input);
     }
 
-    public ResponseEntity<Object> getStats(String start, String end, List<String> uris, Boolean unique) {
+    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        String startEncoded = URLEncoder.encode(start.toString(), StandardCharsets.UTF_8);
+        String endEncoded = URLEncoder.encode(end.toString(), StandardCharsets.UTF_8);
+        String urisString = String.join(",", uris);
+
         Map<String, Object> parameters = Map.of(
-                "start", start,
-                "end", end,
-                "uris", uris,
+                "start", startEncoded,
+                "end", endEncoded,
+                "uris", urisString,
                 "unique", unique
         );
         return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
