@@ -4,12 +4,6 @@ import ru.practicum.ewm.stats.dto.ViewStatsDto;
 import ru.practicum.ewm.stats.model.ViewStats;
 
 public class ViewStatsMapper {
-    public static ViewStats toViewStats(ViewStatsDto viewStatsDto) {
-        return ViewStats.builder()
-                .app(viewStatsDto.getApp())
-                .uri(viewStatsDto.getUri())
-                .hits(viewStatsDto.getHits()).build();
-    }
 
     public static ViewStatsDto toViewStatsDto(ViewStats viewStats) {
         return ViewStatsDto.builder()
