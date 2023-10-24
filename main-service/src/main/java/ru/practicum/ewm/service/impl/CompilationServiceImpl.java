@@ -91,7 +91,7 @@ public class CompilationServiceImpl implements CompilationService {
         return CompilationMapper.toCompilationDto(compilation);
     }
 
-    public Compilation getCompilation(Long compId) {
+    private Compilation getCompilation(Long compId) {
         return compilationRepository.findById(compId)
                 .orElseThrow(() -> new CompilationNotFoundException(compId));
     }

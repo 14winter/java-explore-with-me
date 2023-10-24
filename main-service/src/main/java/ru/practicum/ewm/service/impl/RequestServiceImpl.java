@@ -89,7 +89,7 @@ public class RequestServiceImpl implements RequestService {
         return ParticipationRequestMapper.toParticipationRequestDto(cancelledParticipationRequest);
     }
 
-    public User getUser(Long userId) {
+    private User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }

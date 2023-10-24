@@ -23,6 +23,7 @@ public class Event {
     @JoinColumn(name = "cat_id")
     @ManyToOne
     private Category category;
+    @Transient
     @Column(name = "confirmed_requests")
     private Long confirmedRequests;
     @Column(name = "created_on")
@@ -50,6 +51,7 @@ public class Event {
     private EventState state;
     @Column(name = "title")
     private String title;
+    @Transient
     @Column(name = "views")
     private Long views;
 }
