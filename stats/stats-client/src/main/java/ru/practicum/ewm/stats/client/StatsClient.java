@@ -9,16 +9,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.ewm.stats.dto.EndpointHitDto;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class StatsClient extends BaseClient {
     @Autowired
-    public StatsClient(@Value("${stat-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public StatsClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
@@ -32,13 +31,12 @@ public class StatsClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        String startEncoded = URLEncoder.encode(start.toString(), StandardCharsets.UTF_8);
-        String endEncoded = URLEncoder.encode(end.toString(), StandardCharsets.UTF_8);
         String urisString = String.join(",", uris);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
         Map<String, Object> parameters = Map.of(
-                "start", startEncoded,
-                "end", endEncoded,
+                "start", start.format(formatter),
+                "end", end.format(formatter),
                 "uris", urisString,
                 "unique", unique
         );
