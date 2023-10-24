@@ -284,7 +284,7 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public List<EventShortDto> searchPublic(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                            LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, int from, int size, HttpServletRequest request) {
+                                            LocalDateTime rangeEnd, Boolean onlyAvailable, EventSort sort, int from, int size) {
         if (rangeStart != null && rangeEnd != null) {
             if (rangeStart.isAfter(rangeEnd)) {
                 throw new IncorrectParameterException("Некорректные параметры даты.");
@@ -304,11 +304,12 @@ public class EventServiceImpl implements EventService {
                             || event.getParticipantLimit() < requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED))
                     .collect(Collectors.toList());
         }
-        Map<Event, Long> eventRequests = requestRepository.findAllByEventInAndStatus(events, RequestStatus.CONFIRMED).stream()
-                .collect(Collectors.groupingBy(ParticipationRequest::getEvent, Collectors.counting()));
+        Map<Long, Long> eventRequests = requestRepository.findAllByEventInAndStatus(events, RequestStatus.CONFIRMED)
+                .stream()
+                .collect(Collectors.groupingBy(participationRequest -> participationRequest.getEvent().getId(), Collectors.counting()));
         if (!eventRequests.isEmpty()) {
             for (Event event : events) {
-                event.setConfirmedRequests(eventRequests.getOrDefault(event, 0L));
+                event.setConfirmedRequests(eventRequests.getOrDefault(event.getId(), 0L));
             }
         }
 
@@ -339,7 +340,6 @@ public class EventServiceImpl implements EventService {
                         requestRepository.countByEventIdAndStatus(eventFullDto.getId(), RequestStatus.CONFIRMED)))
                 .collect(Collectors.toList());
 
-        createStats(request);
         log.info("Найдено событий: {}", result.size());
 
         if (sort.equals(EventSort.VIEWS)) {
@@ -352,7 +352,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto getEventPublic(Long eventId, HttpServletRequest request) {
+    public EventFullDto getEventPublic(Long eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(String.format("Событие с id%d не найдено.", eventId)));
         event.setConfirmedRequests(requestRepository.countByEventIdAndStatus(event.getId(), RequestStatus.CONFIRMED));
@@ -373,13 +373,13 @@ public class EventServiceImpl implements EventService {
             event.setViews(viewStatsList.isEmpty() ? 0L : viewStatsList.get(0).getHits());
         }
 
-        createStats(request);
         log.info("Получено событие с id{}", event.getId());
 
         return EventMapper.toEventFullDto(event);
     }
 
-    private void createStats(HttpServletRequest request) {
+    @Override
+    public void createStats(HttpServletRequest request) {
         String app = "main-service";
         statsClient.save(EndpointHitDto.builder()
                 .app(app)
@@ -389,7 +389,7 @@ public class EventServiceImpl implements EventService {
                 .build());
     }
 
-    public User getUser(Long userId) {
+    private User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
     }

@@ -34,12 +34,16 @@ public class EventControllerPublic {
                                             @RequestParam(defaultValue = "10") int size,
                                             HttpServletRequest request) {
         log.info("Получен Get запрос к /events");
-        return eventService.searchPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
+        List<EventShortDto> result = eventService.searchPublic(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+        eventService.createStats(request);
+        return result;
     }
 
     @GetMapping("/{id}")
     public EventFullDto getEventPublic(@PathVariable Long id, HttpServletRequest request) {
         log.info("Получен Get запрос к /events/{id}: id{}", id);
-        return eventService.getEventPublic(id, request);
+        EventFullDto result = eventService.getEventPublic(id);
+        eventService.createStats(request);
+        return result;
     }
 }

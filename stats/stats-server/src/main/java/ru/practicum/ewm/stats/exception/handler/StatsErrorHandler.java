@@ -9,7 +9,7 @@ import ru.practicum.ewm.stats.exception.WrongTimeException;
 
 @Slf4j
 @RestControllerAdvice("ru.practicum.ewm.stats")
-public class ErrorHandler {
+public class StatsErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
