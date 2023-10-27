@@ -66,6 +66,17 @@ public class ErrorHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiError handle(final CommentNotFoundException e) {
+        log.error("CommentNotFoundException: {}", e.getMessage());
+        return ApiError.builder()
+                .status(HttpStatus.NOT_FOUND)
+                .message(e.getMessage())
+                .reason("Comment not found")
+                .build();
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handle(final CategoryAlreadyExistException e) {
         log.error("CategoryAlreadyExistException: {}", e.getMessage());
@@ -161,6 +172,17 @@ public class ErrorHandler {
                 .status(HttpStatus.CONFLICT)
                 .message(e.getMessage())
                 .reason("User event")
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handle(final CommentConflictException e) {
+        log.error("CommentConflictException: {}", e.getMessage());
+        return ApiError.builder()
+                .status(HttpStatus.CONFLICT)
+                .message(e.getMessage())
+                .reason("Comment conflict")
                 .build();
     }
 
